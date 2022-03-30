@@ -24,7 +24,10 @@ def get_os_for_image(image: str) -> str:
     for line in stdout.decode().split('\n'):
         (name, var) = line.partition("=")[::2]
         hash[name.strip().strip('"')] = var.strip().strip('"')
-    return (hash["ID"], hash["VERSION_ID"])
+    if "PRETTY_NAME" in hash:
+        if hash["PRETTY_NAME"] == "Distroless":
+            return "distroless"
+    return hash["ID"]
 
 
 def parse_packages(provider: str, input: str) -> list[dict]:
