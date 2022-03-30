@@ -32,6 +32,7 @@ def get_os_for_image(image: str) -> str:
 
 def parse_packages(provider: str, input: str) -> list[dict]:
     output = list()
+    object_distroless = dict()
     for line in input.split('\n'):
         if len(line) > 0:
             object = dict()
@@ -49,6 +50,16 @@ def parse_packages(provider: str, input: str) -> list[dict]:
                     version =  "-".join(second_pass[1:])
                 case "debian":
                     package, version = line.split('\t')
+                case "distroless":
+                    key, value = line.split(':')
+                    if key.strip() == "Package":
+                        del object_distroless
+                        object_distroless = dict()
+                        object_distroless["provider"] = "debian"
+                        object_distroless["package"] = value.strip()
+                    else:
+                        object_distroless["version"] = value.strip()
+                        output.append(object_distroless)
                 case "fedora":
                     first_pass = line.split(' ')[0]
                     second_pass = first_pass.split('-')
@@ -58,10 +69,10 @@ def parse_packages(provider: str, input: str) -> list[dict]:
                     package, version = line.split('==')
                 case "ubuntu":
                     package, version = line.split('\t')
-
-            object["package"] = package
-            object["version"] = version 
-            output.append(object)
+            if provider != "distroless":
+                object["package"] = package
+                object["version"] = version 
+                output.append(object)
     return output
 
 def get_inspect_data(image: str) -> list[dict]:
@@ -70,8 +81,8 @@ def get_inspect_data(image: str) -> list[dict]:
 
 def get_packages(image: str) -> list[dict]:
     os = get_os_for_image(image)
-    # Default is debian ubuntu
-    command = []
+    command = list()
+    result = list()
     match os:
         case "alpine":
             command = ["apk", "list", "-q"]
@@ -79,6 +90,12 @@ def get_packages(image: str) -> list[dict]:
             command =  ["rpm", "-qa"]
         case "debian":
             command = ["dpkg-query", "-W"]
+        case "distroless":
+            command = ["sh", "-c",  "cat /var/lib/dpkg/status.d/* | egrep 'Package|Version'"]
+            bboxcommand = ["sh", "-c", "busybox | grep 'BusyBox v' | awk '{print $1,$2}'"]
+            oneline,_ = run_command_in_image(image, bboxcommand)
+            first_pass = oneline.decode().split()
+            result = [ {"provider": os, "package": first_pass[0], "version": first_pass[1]}]
         case "fedora":
             command =  ["rpm", "-qa"]
         case "ubuntu":
@@ -89,7 +106,7 @@ def get_packages(image: str) -> list[dict]:
     (output, _) = run_command_in_image(image, command)
     (pip_output, _) = run_command_in_image(image, ["python3", "-m", "pip", "list", "--format", "freeze"])
     os_result = parse_packages(os, output.decode())
-    result = os_result
+    result = result + os_result
     if not pip_output:
         pip_result = parse_packages("pip", pip_output.decode())
         result += pip_result
