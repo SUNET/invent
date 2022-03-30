@@ -106,10 +106,10 @@ def get_packages(image: str, hash: dict) -> list[dict]:
         return [{"provider": os, "package": None, "version": None}]
 
     (output, _) = run_command_in_image(image, command)
-    (pip_output, _) = run_command_in_image(image, ["python3", "-m", "pip", "list", "--format", "freeze"])
+    (pip_output, _) = run_command_in_image(image, ["sh", "-c", "python3 -m pip list --format freeze || true"])
     os_result = parse_packages(os, output.decode())
     result = result + os_result
-    if not pip_output:
+    if pip_output:
         pip_result = parse_packages("pip", pip_output.decode())
         result += pip_result
     return result
