@@ -18,7 +18,7 @@ def run_command_in_image(image: str, commands: list[str]) -> tuple:
 
 
 
-def get_os_version_for_image(image: str) -> tuple[str, str]:
+def get_os_for_image(image: str) -> str:
     (stdout, _) = run_command_in_image(image, ["cat", "/etc/os-release"])
     hash = dict()
     for line in stdout.decode().split('\n'):
@@ -27,7 +27,7 @@ def get_os_version_for_image(image: str) -> tuple[str, str]:
     return (hash["ID"], hash["VERSION_ID"])
 
 
-def parse_packages(provider: str, version: str, input: str) -> list[dict]:
+def parse_packages(provider: str, input: str) -> list[dict]:
     output = list()
     for line in input.split('\n'):
         if len(line) > 0:
@@ -66,7 +66,7 @@ def get_inspect_data(image: str) -> list[dict]:
     return json.loads(output.decode())
 
 def get_packages(image: str) -> list[dict]:
-    (os, version) = get_os_version_for_image(image)
+    os = get_os_for_image(image)
     # Default is debian ubuntu
     command = []
     match os:
@@ -81,14 +81,14 @@ def get_packages(image: str) -> list[dict]:
         case "ubuntu":
             command = ["dpkg-query", "-W"]
     if not command:
-        return [dict()]
+        return [{"provider": os, "package": None, "version": None}]
 
     (output, _) = run_command_in_image(image, command)
     (pip_output, _) = run_command_in_image(image, ["python3", "-m", "pip", "list", "--format", "freeze"])
-    os_result = parse_packages(os, version, output.decode())
+    os_result = parse_packages(os, output.decode())
     result = os_result
     if not pip_output:
-        pip_result = parse_packages("pip", "3", pip_output.decode())
+        pip_result = parse_packages("pip", pip_output.decode())
         result += pip_result
     return result
 
