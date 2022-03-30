@@ -16,14 +16,16 @@ def run_command_in_image(image: str, commands: list[str]) -> tuple:
     (_,_) = run_command(["docker", "kill", cid])
     return result
 
-
-
-def get_os_for_image(image: str) -> str:
+def get_os_hash(image:str) -> dict:
     (stdout, _) = run_command_in_image(image, ["cat", "/etc/os-release"])
     hash = dict()
     for line in stdout.decode().split('\n'):
-        (name, var) = line.partition("=")[::2]
-        hash[name.strip().strip('"')] = var.strip().strip('"')
+        if len(line) != 0:
+            (name, var) = line.partition("=")[::2]
+            hash[name.strip().strip('"')] = var.strip().strip('"')
+    return hash
+
+def get_os_for_image(image: str, hash: dict) -> str:
     if "PRETTY_NAME" in hash:
         if hash["PRETTY_NAME"] == "Distroless":
             return "distroless"
@@ -79,8 +81,8 @@ def get_inspect_data(image: str) -> list[dict]:
     (output, _) = run_command(["docker", "image", "inspect", image])
     return json.loads(output.decode())
 
-def get_packages(image: str) -> list[dict]:
-    os = get_os_for_image(image)
+def get_packages(image: str, hash: dict) -> list[dict]:
+    os = get_os_for_image(image, hash)
     command = list()
     result = list()
     match os:
@@ -119,9 +121,11 @@ if __name__ == "__main__":
 
     result = dict()
     for image in args.images: 
-        pkg_list = get_packages(image)
+        os_hash = get_os_hash(image)
+        pkg_list = get_packages(image, os_hash)
         inspect_data = get_inspect_data(image)
         result[image] = { "pkg_list": pkg_list }
         result[image]["inspect_data"] = inspect_data
+        result[image]["os_hash"] = os_hash
 
     print(json.dumps(result))
