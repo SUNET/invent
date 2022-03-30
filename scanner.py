@@ -67,6 +67,8 @@ def parse_packages(provider: str, input: str) -> list[dict]:
                     second_pass = first_pass.split('-')
                     package = second_pass[0]
                     version =  "-".join(second_pass[1:])
+                case "npm":
+                    package, version = line.split(':')
                 case "pip":
                     package, version = line.split('==')
                 case "ubuntu":
@@ -107,11 +109,15 @@ def get_packages(image: str, hash: dict) -> list[dict]:
 
     (output, _) = run_command_in_image(image, command)
     (pip_output, _) = run_command_in_image(image, ["sh", "-c", "python3 -m pip list --format freeze || true"])
+    (npm_output, _) = run_command_in_image(image, ["sh", "-c", "npm ls -p -l || true"])
     os_result = parse_packages(os, output.decode())
     result = result + os_result
     if pip_output:
         pip_result = parse_packages("pip", pip_output.decode())
         result += pip_result
+    if npm_output:
+        npm_result = parse_packages("npm", npm_output.decode())
+        result += npm_result
     return result
 
 if __name__ == "__main__":
