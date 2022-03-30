@@ -29,6 +29,8 @@ def get_os_for_image(image: str, hash: dict) -> str:
     if "PRETTY_NAME" in hash:
         if hash["PRETTY_NAME"] == "Distroless":
             return "distroless"
+    if not "ID" in hash:
+        return "unknown"
     return hash["ID"]
 
 
