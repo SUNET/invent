@@ -10,7 +10,7 @@ def run_command(command: list[str]) -> tuple:
 
 
 def run_command_in_image(image: str, commands: list[str]) -> tuple:
-    (id, _) =  run_command(["docker", "run", "-d", image, "sleep", "30"])
+    (id, _) =  run_command(["docker", "run", "-d", image, "sh", "-c", "sleep 30"])
     cid = id.decode().strip()
     result = run_command(["docker", "exec", cid] + commands)
     (_,_) = run_command(["docker", "kill", cid])
@@ -70,7 +70,9 @@ def parse_packages(provider: str, input: str) -> list[dict]:
                     package = second_pass[0]
                     version =  "-".join(second_pass[1:])
                 case "npm":
-                    package, version = line.split(':')
+                    first_pass = line.split(':')
+                    package = first_pass[0]
+                    version = ':'.join(first_pass[:1])
                 case "pip":
                     package, version = line.split('==')
                 case "ubuntu":
