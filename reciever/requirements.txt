@@ -1,0 +1,5 @@
+fastapi[all]
+uvicorn[standard]
+python-multipart
+argon2-cffi
+uuid
