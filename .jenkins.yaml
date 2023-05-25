@@ -1,0 +1,10 @@
+clean_workspace: true
+triggers:
+  github_push: true
+  cron: "@weekly"
+extra_jobs:
+  - name: invent-reciever
+    builders:
+      - docker
+    docker_name: invent/reciever
+    docker_context_dir: reciever
