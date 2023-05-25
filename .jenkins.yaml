@@ -1,18 +1,16 @@
-clean_workspace: true
-docker_no_cache: true
+---
+environment_variables:
+  INVENT_VERSION: "0.0.1-1"
 git:
   branch: main
 triggers:
-  github_push: false
-  cron: "@weekly"
-extra_jobs:
-  - name: invent-reciever
-    builders:
-      - docker
-    docker_context_dir: reciever
-    docker_name: invent/reciever
-    docker_tags:
-      - "latest"
-    triggers:
-      github_push: true
-      cron: "@weekly"
+  cron: "@daily"
+clean_workspace: true
+builders:
+  - docker
+docker_context_dir: reciever
+docker_name: invent/reciever
+docker_tags:
+  - "${INVENT_VERSION}"
+  - "latest"
+docker_no_cache: true
