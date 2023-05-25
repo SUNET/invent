@@ -8,3 +8,5 @@ extra_jobs:
       - docker
     docker_name: invent/reciever
     docker_context_dir: reciever
+    github_push: true
+    cron: "@weekly"
