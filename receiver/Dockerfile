@@ -9,4 +9,4 @@ COPY ./main.py .
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir --requirement requirements.txt 
 EXPOSE 8000/tcp
-CMD [ ".local/bin/uvicorn", "main:app" ]
+CMD [ ".local/bin/uvicorn", "--host", "0.0.0.0", "main:app" ]
