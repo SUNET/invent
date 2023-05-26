@@ -8,8 +8,8 @@ triggers:
 clean_workspace: true
 builders:
   - docker
-docker_context_dir: reciever
-docker_name: invent/reciever
+docker_context_dir: receiver
+docker_name: invent/receiver
 docker_tags:
   - "${INVENT_VERSION}"
   - "latest"
