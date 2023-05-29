@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Inventory administration</title>
+</head>
+
+<body>
+  <h1>Reports</h1>
+  {% if reports|length > 0 %}
+  <form>
+  <ul>
+    {% for report in reports %}
+    <li>User: {{ report.username }}, endpoint: {{ report.endpoint }}, timestamp: {{ report.timestamp }} <button
+        type="submit" formmethod="post" formaction="/admin/{{ report.endpoint }}/{{ report.username }}" id="{{ report.endpoint }}.{{ report.username }}">Reset</button>
+    </li>
+    {% endfor %}
+    <ul />
+  </form>
+  {% else %}
+  <p>You have no reports at this time</p>
+  {% endif %}
+</body>
+
+</html>

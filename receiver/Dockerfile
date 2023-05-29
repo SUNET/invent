@@ -6,6 +6,7 @@ RUN  useradd --system --create-home --home-dir /app --shell /bin/bash invent
 USER invent
 WORKDIR /app
 COPY ./main.py .
+COPY ./templates ./templates/
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir --requirement requirements.txt 
 EXPOSE 8000/tcp
