@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 import argparse
 import json
 import subprocess
@@ -15,6 +15,15 @@ def run_command_in_image(image: str, commands: list[str]) -> tuple:
     result = run_command(["docker", "exec", cid] + commands)
     (_,_) = run_command(["docker", "kill", cid])
     return result
+
+def cleanup_image(image: str) -> None:
+    check_command = ['docker', 'ps', '--filter', f'ancestor={image}', '--quiet']
+    (stdout, _) = run_command(check_command)
+    if stdout == b'':
+        (_,_) = run_command(["docker", "rmi", image, '--force'])
+
+def cleanup_all() -> None:
+    (_,_) = run_command(["docker", "system", "prune", "-af", "--volumes"])
 
 def get_os_hash(image:str) -> dict:
     (stdout, _) = run_command_in_image(image, ["cat", "/etc/os-release"])
@@ -137,5 +146,7 @@ if __name__ == "__main__":
         result[image] = { "pkg_list": pkg_list }
         result[image]["inspect_data"] = inspect_data
         result[image]["os_hash"] = os_hash
+        cleanup_image(image)
+    cleanup_all()
 
     print(json.dumps(result))
