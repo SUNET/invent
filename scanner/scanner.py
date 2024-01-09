@@ -143,10 +143,13 @@ if __name__ == "__main__":
         os_hash = get_os_hash(image)
         pkg_list = get_packages(image, os_hash)
         inspect_data = get_inspect_data(image)
+        if os_hash == {} and pkg_list[0]['package']['version'] == None and inspect_data == []:
+            continue
         result[image] = { "pkg_list": pkg_list }
         result[image]["inspect_data"] = inspect_data
         result[image]["os_hash"] = os_hash
         cleanup_image(image)
     cleanup_all()
 
-    print(json.dumps(result))
+    if result != {}: 
+        print(json.dumps(result))
