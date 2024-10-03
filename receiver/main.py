@@ -125,14 +125,6 @@ app = FastAPI()
 inventory = Inventory()
 templates = Jinja2Templates(directory="templates")
 
-@app.post("/host/{hostname}", status_code=status.HTTP_201_CREATED)
-async def upload_host(file: UploadFile, hostname: str, credentials: Annotated[HTTPBasicCredentials, Depends(security)], response: Response):
-    return await inventory.upload('host', file, hostname, credentials, response)
-
-@app.post("/image/{imagename}", status_code=status.HTTP_201_CREATED)
-async def upload_image(file: UploadFile, imagename: str, credentials: Annotated[HTTPBasicCredentials, Depends(security)], response: Response):
-    return await inventory.upload('image', file, imagename, credentials, response)
-
 @app.get("/admin", response_class=HTMLResponse)
 async def show_admin_interface(credentials: Annotated[HTTPBasicCredentials, Depends(security)], request: Request):
     hash = inventory.ph.hash(inventory.admin_salt + inventory.admin_password) 
@@ -145,6 +137,7 @@ async def show_admin_interface(credentials: Annotated[HTTPBasicCredentials, Depe
     for res in result:
         reports.append({"username": res[0],"timestamp":  datetime.datetime.fromtimestamp(int(res[1])), "endpoint": res[2]})
     return templates.TemplateResponse("admin.html", {"request": request, "reports": reports})
+
 @app.post("/admin/{endpoint}/{name}", response_class=HTMLResponse)
 async def delete_report_and_reset_user(endpoint: str, name: str, credentials: Annotated[HTTPBasicCredentials, Depends(security)], request: Request):
     hash = inventory.ph.hash(inventory.admin_salt + inventory.admin_password) 
@@ -155,3 +148,12 @@ async def delete_report_and_reset_user(endpoint: str, name: str, credentials: An
     inventory.cursor.execute(f"DELETE FROM users where username='{name}' and endpoint='{endpoint}'")
     inventory.db.commit()
     return templates.TemplateResponse('delete_report_and_reset_user.html', {"request": request, "username": name, "endpoint": endpoint})
+
+@app.post("/host/{hostname}", status_code=status.HTTP_201_CREATED)
+async def upload_host(file: UploadFile, hostname: str, credentials: Annotated[HTTPBasicCredentials, Depends(security)], response: Response):
+    return await inventory.upload('host', file, hostname, credentials, response)
+
+@app.post("/image/{imagename}", status_code=status.HTTP_201_CREATED)
+async def upload_image(file: UploadFile, imagename: str, credentials: Annotated[HTTPBasicCredentials, Depends(security)], response: Response):
+    return await inventory.upload('image', file, imagename, credentials, response)
+
