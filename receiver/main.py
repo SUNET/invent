@@ -47,7 +47,7 @@ class Inventory:
                 "name": "db",
                 "key": "db_dir",
                 "default_path": "/etc/invent/db",
-                "envar": "INVENT_DB_DIR",
+                "envar": "INVENT_DB_DIR"
             },
             {
                 "name": "hosts",
