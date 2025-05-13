@@ -1,0 +1,41 @@
+publiccodeYmlVersion: "0.4"
+
+name: invent
+url: "https://github.com/SUNET/invent"
+platforms:
+  - linux
+
+categories:
+  - it-service-management
+
+developmentStatus: development
+
+softwareType: "standalone/other"
+
+description:
+  en:
+    shortDescription: >
+      Invent is a inventory and scanning tool.
+
+    longDescription: >
+      Invent will scan docker images and servers
+      and also has the cabalitity to collect these
+      scans in a simple json format.
+
+    features:
+      - Inventory
+
+legal:
+  license: GPL-3.0
+
+maintenance:
+  type: "community"
+
+  contacts:
+    - name: Richard Danielsson <richir@sunet.se>
+    - name: Micke Nordin <kano@sunet.se>
+
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
