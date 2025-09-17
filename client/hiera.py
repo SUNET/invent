@@ -47,7 +47,7 @@ def main():
 
     # gather key/value pairs from hiera_content
     # keys starting with meta
-    result = result.update(
+    result.update(
         (key, value) for key, value in hiera_content.items() if key.startswith("meta_")
     )
 
