@@ -1,4 +1,5 @@
 import sys
+import os
 from pathlib import Path
 from pprint import pprint
 from typing import Any
@@ -21,8 +22,10 @@ __author__ = "lundberg"
 
 
 def parse_hiera_file(
-    file_name: str, datadir: str = "/etc/hiera/data"
+    file_name: str, datadir: str = "/etc/hiera/data/"
 ) -> None | dict[str, Any]:
+    if not datadir.endswith(os.sep):
+        datadir += os.sep
     path = Path(datadir + file_name)
     if path.is_file():
         with open(path, "r") as f:
