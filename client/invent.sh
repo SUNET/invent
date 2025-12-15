@@ -4,7 +4,7 @@
 source /etc/default/invent-client
 
 datadir="${INVENT_DIR}/data"
-export_endpoint="${INVENT_EXPORT_ENDPOINT}"
+export_endpoints=("${INVENT_EXPORT_ENDPOINT[@]}")
 fact_dir="/var/lib/puppet/facts.d"
 filename="${datadir}/data-$(date +%Y%m%dT%H%M%S).json"
 host_os="${INVENT_HOST_OS}"
@@ -62,7 +62,7 @@ ln -f -s "${filename}" "${latest}"
 find ${datadir} -type f -mtime +${retention_days} -delete
 
 # Send data to inventory receiver
-if [[ -x /usr/bin/curl ]] && [[ -n ${export_endpoint} ]]; then
+if [[ -x /usr/bin/curl ]] && [[ ${#export_endpoints[@]} -gt 0 ]]; then
   username=$(hostname -f)
   pwfile="/opt/invent/passwd"
   if [[ -f ${pwfile} ]]; then
@@ -72,8 +72,11 @@ if [[ -x /usr/bin/curl ]] && [[ -n ${export_endpoint} ]]; then
     password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 256 | head -n 1)
     echo ${password} > ${pwfile}
   fi
-  curl -X POST -H 'accept: application/json' \
-    -F "file=@${filename}" \
-    --user ${username}:${password}  \
-    ${export_endpoint}/host/${username}
+
+  for endpoint in "${export_endpoints[@]}"; do
+    curl -X POST -H 'accept: application/json' \
+      -F "file=@${filename}" \
+      --user ${username}:${password}  \
+      "${endpoint}/host/${username}"
+  done
 fi
