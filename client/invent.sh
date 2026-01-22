@@ -74,7 +74,7 @@ if [[ -x /usr/bin/curl ]] && [[ ${#export_endpoints[@]} -gt 0 ]]; then
   fi
 
   for endpoint in "${export_endpoints[@]}"; do
-    if [ -n "${endpoint}" ]; then
+    if [[ -n "${endpoint}" ]]; then
       # Can't post to empty strings
       continue
     fi
