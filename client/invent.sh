@@ -74,6 +74,11 @@ if [[ -x /usr/bin/curl ]] && [[ ${#export_endpoints[@]} -gt 0 ]]; then
   fi
 
   for endpoint in "${export_endpoints[@]}"; do
+    if [[ -z "${endpoint}" ]]; then
+      # Can't post to empty strings
+      continue
+    fi
+
     curl -X POST -H 'accept: application/json' \
       -F "file=@${filename}" \
       --user ${username}:${password}  \
