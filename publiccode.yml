@@ -1,4 +1,4 @@
-publiccodeYmlVersion: "0.4"
+publiccodeYmlVersion: "0"
 
 name: invent
 url: "https://github.com/SUNET/invent"
@@ -18,9 +18,10 @@ description:
       Invent is a inventory and scanning tool.
 
     longDescription: >
-      Invent will scan docker images and servers
-      and also has the cabalitity to collect these
-      scans in a simple json format.
+      Invent scans Docker images and servers and has the capability to
+      collect the scan results in a simple JSON format. It provides an
+      inventory of your infrastructure components along with their
+      associated scan data.
 
     features:
       - Inventory
